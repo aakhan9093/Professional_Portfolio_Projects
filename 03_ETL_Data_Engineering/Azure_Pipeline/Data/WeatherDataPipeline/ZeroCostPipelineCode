@@ -1,0 +1,42 @@
+!pip install pyspark boto3 requests pyowm
+import requests
+
+def fetch_weather_data(city, api_key):
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+api_key = 'API KEY W-API'  # Replace with your OpenWeatherMap API Key
+city = 'London'
+weather_data = fetch_weather_data(city, api_key)
+print(weather_data)
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder.appName("WeatherDataTransformation").getOrCreate()
+
+# Creating a DataFrame from the JSON response
+data = [{'city': city, 'temperature': weather_data['main']['temp'], 'weather': weather_data['weather'][0]['description']}]
+df = spark.createDataFrame(data)
+df.show()
+
+# Transformation: Convert temperature from Kelvin to Celsius
+df_transformed = df.withColumn('temperature_celsius', col('temperature') - 273.15)
+df_transformed.show()
+
+import boto3
+import json
+
+# Set up AWS credentials and S3 bucket
+s3 = boto3.client('s3', aws_access_key_id='AWS KEY', aws_secret_access_key='XSECRET KEY', region_name='ap-south-1')
+
+def upload_to_s3(data, bucket_name, filename):
+    s3.put_object(Bucket=bucket_name, Key=filename, Body=json.dumps(data))
+
+# Upload the transformed data to S3
+bucket_name = 'my-colab-data-bucket'
+filename = 'transformed_weather_data.json'
+transformed_data = df_transformed.toJSON().collect()
+upload_to_s3(transformed_data, bucket_name, filename)
