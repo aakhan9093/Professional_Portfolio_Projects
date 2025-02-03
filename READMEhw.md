@@ -83,6 +83,18 @@ wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/misc/taxi_z
 Download this data and put it into Postgres.
 
 You can use the code from the course. It's up to you whether you want to use Jupyter or a python script.
+## Answer:
+The hostname and port that pgadmin should use to connect to the postgres database are db:5432.
 
 
+## Question 3. Trip Segmentation Count
+During the period of October 1st 2019 (inclusive) and November 1st 2019 (exclusive), how many trips, respectively, happened:
+
+Up to 1 mile
+In between 1 (exclusive) and 3 miles (inclusive),
+In between 3 (exclusive) and 7 miles (inclusive),
+In between 7 (exclusive) and 10 miles (inclusive),
+Over 10 miles
+
+## Answer
 
